@@ -1,60 +1,55 @@
 import { promises as fs } from "node:fs";
 
 const args = process.argv.slice(2);
-console.log(args)
 
 const showLines = args.includes("-l");
 const showWords = args.includes("-w");
 const showChars = args.includes("-c");
-const paths = args.filter(arg => !arg.startsWith("-")) || ".";
-console.log(paths)
+let paths = args.filter(arg => !arg.startsWith("-"));
+if (paths.length === 0) paths = ["."];
 
-// const direct = await fs.readdir(path);
+// helper for formatting like real wc
+const pad = (n) => String(n).padStart(8, " ");
 
-// console.log(direct);
 let totalLines = 0;
 let totalWords = 0;
-let totalchars = 0;
+let totalChars = 0;
 
-if(showLines){
-    for (const path of paths){
-    const content = await fs.readFile(path, "utf-8"); 
-    const lines = content.split("\n").length;
+for (const path of paths) {
+    try {
+        const content = await fs.readFile(path, "utf-8");
 
-    totalLines += lines;
+        const lines = content.split("\n").length;
+        const words = content.split(/\s+/).filter(Boolean).length;
+        const chars = content.length;
+
+        totalLines += lines;
+        totalWords += words;
+        totalChars += chars;
+
+    } catch (err) {
+        console.error(`Error reading file "${path}": ${err.message}`);
     }
-    console.log("line: ", totalLines);
+
 }
-else if(showWords){
-    for (const path of paths){
-    const content = await fs.readFile(path, "utf-8");
-    const words = content.split(/\s+/).filter(Boolean).length;
-
-    totalWords += words;
-    }
-    console.log("words: ", totalWords);
+if (showLines) {
+    console.log("lines:", totalLines);
 }
-else if(showChars){
-    for (const path of paths){
-    const content = await fs.readFile(path, "utf-8");
-    const char = content.length; 
 
-    totalchars += char;
-    }
-    console.log("chars", totalchars)
+if (showWords) {
+    console.log("words:", totalWords);
 }
-else{
-    for (const path of paths){
-    const content = await fs.readFile(path, "utf-8");
-    const lines = content.split("\n").length;
-    const words = content.split(/\s+/).filter(Boolean).length;
-    const char = content.length; 
 
-    totalLines += lines;
-    totalWords += words;
-    totalchars += char;
-    }
-console.log("lines: ", totalLines, " words", totalWords, " char:", totalchars)
+if (showChars) {
+    console.log("chars:", totalChars);
+}
+
+
+// default output when no flags
+if (!showLines && !showWords && !showChars) {
+    console.log(
+    `${pad(totalLines)}\t${pad(totalWords)}\t${pad(totalChars)}\ttotal`
+  );
 }
 
 

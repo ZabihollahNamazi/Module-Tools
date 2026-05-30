@@ -10,6 +10,9 @@ const showNonEmptyNumbers = args.includes("-b");
 // getting the paths of files
 const paths = args.filter(arg => arg !== "-n" && arg !== "-b");
 
+// helper: mimic real cat line number formatting
+const padLineNumber = (num) => String(num).padStart(6, " ");
+
 // loop over each file
 for (const path of paths) {
   try {
@@ -21,24 +24,24 @@ for (const path of paths) {
 
     let lineNumber = 1; // tracks line numbers for -b and -n
 
-    lines.forEach((line) => {
+    for (const line of lines) {
       if (showNonEmptyNumbers) {
         // -b: number only non-empty lines
-        if (line.trim() !== "") {
-          console.log(`${lineNumber} ${line}`);
+        if (line !== "") {
+          console.log(`${padLineNumber(lineNumber)}  ${line}`);
           lineNumber++;
         } else {
           console.log(line); // shows empty line with no number
         }
       } else if (showAllNumbers) {
         // -n: number all lines
-        console.log(`${lineNumber} ${line}`);
+        console.log(`${padLineNumber(lineNumber)}  ${line}`);
         lineNumber++;
       } else {
         // no flags: just print line
         console.log(line);
       }
-    });
+    }
   } catch (err) {
     console.error(`Error reading file "${path}": ${err.message}`);
   }

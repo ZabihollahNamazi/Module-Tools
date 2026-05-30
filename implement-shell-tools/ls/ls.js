@@ -10,19 +10,32 @@ const showAllFilesWithHidden = args.includes("-a");
 const path = args.find(arg => !arg.startsWith("-")) || ".";
 // if we do console.log("path=> ",path," args=> " ,args); it will give us this =>: path=>  sample-files  args=>  [ '-1', '-a', 'sample-files' ]
 
-const direc = await fs.readdir(path)
-// if the path is <sample-files> console.log(direc) gives us =>: [ '.hidden.txt', '1.txt', '2.txt', '3.txt', 'dir' ]
+try {
+  const direc = await fs.readdir(path);
 
-if(showOnePerLine && showAllFilesWithHidden){ 
-    direc.forEach(element => {
-        console.log(element)
-    })
-}
-else if(showOnePerLine){
-    const visibleFiles = direc.filter(element => !element.startsWith(".")); // filtering hidden files which starts with "."
-    visibleFiles.forEach(element => {
-        console.log(element)
+  // handle hidden files (-a flag controls this)
+  let files = direc;
+
+  if (!showAllFilesWithHidden) {
+    files = files.filter(file => !file.startsWith("."));
+  }
+
+  // one file per line
+  if (showOnePerLine) {
+    files.forEach(file => {
+      console.log(file);
     });
+  }
+
+  // default behavior: also one per line (simple version of ls)
+  else {
+    files.forEach(file => {
+      console.log(file);
+    });
+  }
+
+} catch (err) {
+  console.error(`Error reading directory "${path}": ${err.message}`);
 }
 
 
