@@ -1,8 +1,9 @@
+#!/usr/bin/env python3
 import cowsay
 import argparse
 
 #getting avalble animal list
-animals = [a for a in dir(cowsay) if not a.startswith("__") and callable(getattr(cowsay, a))]
+animals = cowsay.char_names
 
 parser = argparse.ArgumentParser(
     prog="cowsay program",
