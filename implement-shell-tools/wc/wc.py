@@ -29,9 +29,23 @@ parser.add_argument(
 
 args = parser.parse_args()
 
+show_all = not (args.l or args.w or args.c)
 total_lines = 0
 total_words = 0
 total_chars = 0
+
+def format_output(lines, words, chars, label):
+    output_parts = []
+    
+    # If the specific flag is requested, or no flags were passed at all
+    if args.l or show_all:
+        output_parts.append(f"{lines:>7}")
+    if args.w or show_all:
+        output_parts.append(f"{words:>7}")
+    if args.c or show_all:
+        output_parts.append(f"{chars:>7}")
+        
+    return "".join(output_parts) + f" {label}"
 
 for file in args.files:
     try:
@@ -49,34 +63,10 @@ for file in args.files:
             total_words += word_count
             total_chars += char_count
             
-            output_parts = []
-            if args.l:
-                output_parts.append(f"{line_count:>7}")
-            if args.w:
-                output_parts.append(f"{word_count:>7}")
-            if args.c:
-                output_parts.append(f"{char_count:>7}")
-                
-            if not args.w and not args.l and not args.c:
-                print(f"{line_count:>7}{word_count:>7}{char_count:>7} {file}")
-            else:
-                output_parts.append(f" {file}")
-                print("".join(output_parts))
+            print(format_output(line_count, word_count, char_count, file))
             
     except FileNotFoundError:
         print(f"wc: {file}: open: No such file or directory")
 
 if len(args.files) > 1:
-    total_parts = []
-    if args.l:
-        total_parts.append(f"{total_lines:>7}")
-    if args.w:
-        total_parts.append(f"{total_words:>7}")
-    if args.c:
-        total_parts.append(f"{total_chars:>7}")
-        
-    if not args.w and not args.l and not args.c:
-        print(f"{total_lines:>7}{total_words:>7}{total_chars:>7} total")
-    else:
-        total_parts.append(" total")
-        print("".join(total_parts))
+    print(format_output(total_lines, total_words, total_chars, "total"))
